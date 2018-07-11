@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PuffinBlaster</title>
+</head>
+<body>
+<h1>Internal Test Tool</h1>
+<h3>Connection to PowerSwitch is {{pSuccess}}</h3>
+<a href="/devices"> refresh </a>
+<form action="/run/url" method="post">
+  Devices:
+  <select name="devices">
+    {% for device in devices %}
+    <option value = "{{device}}">{{device}}</option>
+    {% endfor %}
+  </select>
+  Ports:
+  <select name="ports">
+    <option value = "1"> 1 </option>
+    <option value = "2"> 2 </option>
+    <option value = "3"> 3 </option>
+    <option value = "4"> 4 </option>
+    <option value = "5"> 5 </option>
+    <option value = "6"> 6 </option>
+  </select>
+  
+  <br>
+  Method:
+  <select name="tests">
+    <option value = "url">url</option>
+    <option value = "test">test</option>
+  </select>
+  Url:
+  <input type="text" name="url">
+  <br>
+  App:
+  <input type="text" name="app">
+  <input type="submit" value="submit">
+</form>
+
+</body>
+</html>
