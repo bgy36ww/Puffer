@@ -1,18 +1,13 @@
-from flask import Flask, request, abort, render_template,redirect
-import dlipower
+from flask import Flask, request, render_template, redirect
 import time
 from dial_client import util
-
-from Task import Task
+from Controller import MainController
+import sqlite3
+from flask import g
 
 app = Flask(__name__)
-global devices
-devices = []
-global deviceMap
-deviceMap = {}
-global switch
-global pSuccess
-pSuccess = 'successful'
+DATABASE = './data.db'
+
 
 @app.route('/')
 def hello_world():
@@ -22,8 +17,6 @@ def hello_world():
 
 @app.route('/run/url', methods=['post'])
 def execute_url():
-    global deviceMap
-    global switch
     content = request.form['url']
     device = request.form['devices']
     test = request.form['tests']
@@ -88,6 +81,10 @@ def query_devices():
 def query_device(device_id): pass
 
 
+def get_db():
+    db = getattr(g, '_database', None)
+
+
 def update_device_list():
     print('finding devices')
     global devices
@@ -104,22 +101,11 @@ def update_device_list():
 
 def setup_app(app):
     print('Connecting to a DLI PowerSwitch at lpc.digital-loggers.com')
-    global switch
-    switch = dlipower.PowerSwitch(hostname="192.168.0.100", userid="admin",
-                                  password='1234')
-    #update_device_list()
-    for i in range(1,8):
-        switch.off(i)
-        switch.on(i)
-    global pSuccess
-    try:
-        switch.verify()
-    except:
-        pSuccess = 'failed'
+    controller = MainController()
 
 
-setup_app(app)
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0')
+    setup_app(app)
+    app.run(host='0.0.0.0')
 
 
