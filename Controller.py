@@ -16,13 +16,27 @@ class MainController:
         self.deviceManager = DeviceManager(self)
         self.deviceManager.start()
         self.device_map = {}
+        self.devices = []
 
-    def update(self, device_map):
+    def update(self, device_map, devices):
         self.device_map = device_map
+        self.devices = devices
 
-    def run_url(self, url, index): pass
+    def run_url(self, name, url, content):
+        self.device_map[name].launch(url, content)
 
-    def run_task(self): pass
+    def run_task(self, name, port, app, task):
+        client = self.device_map[name]
+        self.jobManager.add(name, client, port, app, task)
 
-    def query_devices(self): pass
+    def query_devices(self):
+        return self.device_map
 
+    def reconnect(self):
+        self.pSuccess = self._switch.verify()
+
+    def get_list(self):
+        return self.jobManager.get_list()
+
+    def kill_process(self, name):
+        self.jobManager.terminate(name)

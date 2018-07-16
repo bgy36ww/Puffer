@@ -7,28 +7,34 @@ class JobManager:
         self._pool = {}
         self._switch = switch
 
-    def add(self, client, port, app, task):
+    def add(self, name, client, port, app, task):
+        if name in self._pool:
+            self._pool[name].terminate()
         job = Job(client, self.switch, port, 200, app, task)
         job.start()
-        self._pool[client] = job
+        self._pool[name] = job
 
-    def pause(self, client):
-        self._pool[client].pause()
+    def pause(self, name):
+        self._pool[name].pause()
 
-    def resume(self, client):
-        self._pool[client].resume()
+    def resume(self, name):
+        self._pool[name].resume()
 
-    def get_status(self, client):
-        return self._pool[client].get_status()
+    def get_status(self, name):
+        return self._pool[name].get_status()
 
-    def terminate(self, client):
-        self._pool[client].terminate()
+    def terminate(self, name):
+        self._pool[name].terminate()
+        self._pool.pop(name)
 
-    def get_process(self, client):
-        return self._pool[client]
+    def get_process(self, name):
+        return self._pool[name]
 
-    def is_alive(self, client):
-        return self._pool[client].is_alive()
+    def get_list(self):
+        return self._pool.keys()
+
+    def is_alive(self, name):
+        return self._pool[name].is_alive()
 
 
 class Job(Process):
@@ -55,7 +61,7 @@ class Job(Process):
     def resume(self):
         self._paused = False
 
-    def check_puased(self):
+    def check_paused(self):
         while self._paused:
             pass
 
@@ -64,6 +70,7 @@ class Job(Process):
         self._task = task
 
     def schedule(self):
+        self.client.Close(self._app)
         while self._operating and self._loops > 0:
             self._loops = self._loops-1
             self.switch.on(self.port)

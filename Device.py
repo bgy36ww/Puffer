@@ -6,6 +6,7 @@ class DeviceManager(Process):
     def __init__(self, util, controller):
         self.util = util
         self.controller = controller
+        self.devices = []
 
     def update_device_list(self):
         print('finding devices')
@@ -18,7 +19,7 @@ class DeviceManager(Process):
             name = service.friendly_name
             device_map[name] = service
             devices.append(name)
-        self.controller.update(device_map)
+        self.controller.update(device_map, devices)
 
     def run(self):
         while True:
