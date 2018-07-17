@@ -5,6 +5,7 @@ from dial_client import util
 
 class DeviceManager(Process):
     def __init__(self, controller):
+        super(DeviceManager,self).__init__()
         self.controller = controller
         self.devices = []
 

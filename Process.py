@@ -39,6 +39,7 @@ class JobManager:
 
 class Job(Process):
     def __init__(self, client, switch, port, loops, app, task):
+        super(Process,self).__init__()
         self.client = client
         self.switch = switch
         self.port = port
