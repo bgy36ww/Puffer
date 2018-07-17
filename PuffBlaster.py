@@ -86,7 +86,7 @@ def setup_app(app):
     if not controller.pSuccess:
         pSuccess = 'not established'
     global pList
-    pList = MainController.get_list()
+    pList = controller.get_list()
 
 
 if __name__ == '__main__':
