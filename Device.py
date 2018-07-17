@@ -1,16 +1,16 @@
 from multiprocessing import Process
 import time
+from dial_client import util
 
 
 class DeviceManager(Process):
-    def __init__(self, util, controller):
-        self.util = util
+    def __init__(self, controller):
         self.controller = controller
         self.devices = []
 
     def update_device_list(self):
         print('finding devices')
-        services = self.util.CaptureDevices()
+        services = util.CaptureDevices()
         devices = []
         device_map = {}
         if len(services) == 0:
