@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect
 from Controller import MainController
+from Device import DeviceManager
 
 app = Flask(__name__)
 DATABASE = './data.db'
@@ -15,10 +16,11 @@ pList = []
 
 @app.route('/')
 def hello_world():
+    global controller
     global pList
-    pList = MainController.get_list()
+    pList = controller.get_list()
     global devices
-    devices = MainController.devices
+    devices = controller.get_devices()
     return render_template('main.html', pList=pList, devices=devices,
                            pSuccess=pSuccess)
 
@@ -82,6 +84,8 @@ def setup_app(app):
     print('Connecting to a DLI PowerSwitch at lpc.digital-loggers.com')
     global controller
     controller = MainController()
+    manager = DeviceManager(controller)
+    manager.start()
     global pSuccess
     if not controller.pSuccess:
         pSuccess = 'not established'

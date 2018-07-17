@@ -1,5 +1,4 @@
 from Process import JobManager
-from Device import DeviceManager
 import dlipower
 
 
@@ -13,8 +12,6 @@ class MainController:
             self._switch.off(i)
             self._switch.on(i)
         self.jobManager = JobManager(self._switch)
-        self.deviceManager = DeviceManager(self)
-        self.deviceManager.start()
         self.device_map = {}
         self.devices = []
 
@@ -40,3 +37,7 @@ class MainController:
 
     def kill_process(self, name):
         self.jobManager.terminate(name)
+
+    def get_devices(self):
+        return self.devices
+

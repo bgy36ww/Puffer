@@ -1,26 +1,33 @@
-from multiprocessing import Process
 import time
+import threading
 from dial_client import util
 
 
-class DeviceManager(Process):
+class DeviceManager(threading.Thread):
     def __init__(self, controller):
         super(DeviceManager,self).__init__()
         self.controller = controller
         self.devices = []
+        self._len = 0;
+        self.device_map = {}
 
     def update_device_list(self):
-        print('finding devices')
         services = util.CaptureDevices()
         devices = []
         device_map = {}
-        if len(services) == 0:
-            print('no device is available')
+        if len(services) != self._len:
+            if self._len > len(services):
+                print('device disconnected')
+            else:
+                print('new device added')
+            self._len = len(services)
         for service in services:
             name = service.friendly_name
             device_map[name] = service
             devices.append(name)
-        self.controller.update(device_map, devices)
+        self.devices = devices
+        self.device_map = device_map
+        self.controller.update(device_map.copy(), devices.copy())
 
     def run(self):
         while True:

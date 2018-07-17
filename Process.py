@@ -5,7 +5,7 @@ from multiprocessing import Process
 class JobManager:
     def __init__(self, switch):
         self._pool = {}
-        self._switch = switch
+        self.switch = switch
 
     def add(self, name, client, port, app, task):
         if name in self._pool:
@@ -76,9 +76,9 @@ class Job(Process):
             self._loops = self._loops-1
             self.switch.on(self.port)
             time.sleep(100)
-            self.check_puased()
+            self.check_paused()
             res = self.client.Launch(self._app, self._task)
             res.raise_for_status()
             time.sleep(200)
             self.switch.off(self.port)
-            self.check_puased()
+            self.check_paused()
