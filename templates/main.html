@@ -3,6 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>PuffinBlaster</title>
+  <script type="text/javascript">
+     function processDetail() {
+        var selectBox = document.getElementById("selectBox");
+	if (!selectBox){
+	  return;
+	}
+	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+	if (selectedValue == "none") {
+ 	  return;
+	}
+        var xhr = new XMLHttpRequest();
+	xhr.open('POST','/process');
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	var result = document.getElementById("processDetail");
+	if (!result){
+		result = document.createElement("div");
+		document.body.appendChild(result);
+		result.id = "processDetail"
+	}
+	xhr.timeout = 2000;
+	xhr.onreadystatechange = function(){
+	  if(this.readyState == 4 && this.status == 200) {
+            result.innerText = this.responseText;
+	  } else {
+	    result.innerText = "grabbing information";
+	  }
+	}
+	var data = "name=" + selectedValue;
+	console.log(data);
+	xhr.send(data);
+     }
+  </script>
 </head>
 <body>
 <h1>Internal Test Tool</h1>
@@ -29,7 +61,8 @@
   Method:
   <select name="tests">
     <option value = "url">url</option>
-    <option value = "test">test</option>
+    <option value = "hard cycle test">hard cycle test</option>
+    <option value = "soft cycle test">soft cycle test</option>
   </select>
   Url:
   <input type="text" name="url">
@@ -40,10 +73,12 @@
 </form>
 <form action="/run/kill" method="post">
   Running processes:
-  <select name="processes">
+  <select id = "selectBox" name = "processes" onchange = "processDetail()">
     {% for p in pList %}
       <option value = "{{p}}">{{p}}</option>
     {% endfor %}
+    <option value = "none">none</option>
+    <script type="text/javascript">processDetail();</script>
   <input type="submit" value = "terminate">
   </select>
 </form>

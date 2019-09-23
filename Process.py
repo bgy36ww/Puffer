@@ -1,16 +1,19 @@
 import time
-from multiprocessing import Process
+import datetime
+from multiprocessing import Process, Manager
 
 
 class JobManager:
     def __init__(self, switch):
         self._pool = {}
         self.switch = switch
+        self.manager = Manager().dict()
 
-    def add(self, name, client, port, app, task):
+    def add(self, name, client, port, app, task, power = True):
         if name in self._pool:
             self._pool[name].terminate()
-        job = Job(client, self.switch, port, 200, app, task)
+        job = Job(name, client, self.switch, port, 86400, app, task, self.manager, power)
+        self.manager[name] = job.get_summary()
         job.start()
         self._pool[name] = job
 
@@ -21,7 +24,7 @@ class JobManager:
         self._pool[name].resume()
 
     def get_status(self, name):
-        return self._pool[name].get_status()
+        return self.manager[name]
 
     def terminate(self, name):
         self._pool[name].terminate()
@@ -38,17 +41,23 @@ class JobManager:
 
 
 class Job(Process):
-    def __init__(self, client, switch, port, loops, app, task):
-        super(Process,self).__init__()
+    def __init__(self, name, client, switch, port, duration, app, task, manager, power = True):
+        super(Job,self).__init__()
+        self._name = name
+        self._manager = manager
         self.client = client
         self.switch = switch
         self.port = port
         self._operating = True
-        self._loops = loops
+        self._duration = duration
         self._status = 'Created'
         self._paused = False
         self._app = app
         self._task = task
+        self.power = power
+        self._start = time.time()
+        self._loop_count = 0
+        self._error_count = 0
 
     def run(self):
         self.schedule()
@@ -58,27 +67,65 @@ class Job(Process):
 
     def pause(self):
         self._paused = True
+        self._status = 'paused'
 
     def resume(self):
         self._paused = False
+        self._status = 'running'
 
     def check_paused(self):
         while self._paused:
             pass
+
+    def get_summary(self):
+        summary = '\n Status: ' + self._status + '\n Loop count: ' + str(self._loop_count)
+        summary = summary + '\n DIAL error count: ' + str(self._error_count)
+        summary = summary + '\n Time started: ' + datetime.datetime.fromtimestamp(self._start).strftime('%Y-%m-%d %H:%M:%S')
+        summary = summary + '\n Duration: ' + str(datetime.timedelta(seconds=time.time() - self._start))
+        self._manager[self._name] = summary
+        return summary
 
     def switch_task(self, app, task):
         self._app = app
         self._task = task
 
     def schedule(self):
-        self.client.Close(self._app)
-        while self._operating and self._loops > 0:
-            self._loops = self._loops-1
-            self.switch.on(self.port)
-            time.sleep(100)
-            self.check_paused()
-            res = self.client.Launch(self._app, self._task)
-            res.raise_for_status()
-            time.sleep(200)
-            self.switch.off(self.port)
-            self.check_paused()
+        try:
+            self.client.Close(self._app)
+        except Exception as e:
+            print('error closing app')
+            print(e)
+        self._status = 'running'
+        while self._operating and time.time() - self._start < self._duration:
+            try: 
+                self._loop_count += 1
+                print('loop starting')
+                print(self._status)
+                print(self.get_summary())
+                self.switch.on(self.port)
+                time.sleep(200)
+                self.check_paused()
+                res = self.client.Launch(self._app, self._task)
+                res.raise_for_status()
+            except Exception as e:
+                self._error_count += 1
+                print (e)
+
+            try:
+                time.sleep(200)
+                if self.power:
+                    self.switch.off(self.port)
+                self.check_paused()
+            except Exception as e:
+                self.error_count += 1
+                print(e)
+        self._status = 'finished'
+
+    def terminate(self):
+        try:
+            self.client.Close(self._app)
+        except Exception as e:
+            print('error closing app')
+            print(e)
+        super(Job,self).terminate()
+

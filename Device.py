@@ -12,7 +12,7 @@ class DeviceManager(threading.Thread):
         self.device_map = {}
 
     def update_device_list(self):
-        services = util.CaptureDevices()
+        services = util.CaptureDevices(15)
         devices = []
         device_map = {}
         if len(services) != self._len:
@@ -34,8 +34,9 @@ class DeviceManager(threading.Thread):
             try:
                 time.sleep(0.5)
                 self.update_device_list()
-            except ConnectionError:
-                print("Connection Error, Can't find Power Switch")
+            except Exception as err:
+                print("Error caught")
+                print(err)
                 print("Retry in 5 seconds")
                 time.sleep(5)
 

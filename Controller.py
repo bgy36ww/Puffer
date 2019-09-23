@@ -20,11 +20,11 @@ class MainController:
         self.devices = devices
 
     def run_url(self, name, url, content):
-        self.device_map[name].launch(url, content)
+        self.device_map[name].Launch(url, content)
 
-    def run_task(self, name, port, app, task):
+    def run_task(self, name, port, app, task, power = True):
         client = self.device_map[name]
-        self.jobManager.add(name, client, port, app, task)
+        self.jobManager.add(name, client, port, app, task, power)
 
     def query_devices(self):
         return self.device_map
@@ -37,6 +37,9 @@ class MainController:
 
     def kill_process(self, name):
         self.jobManager.terminate(name)
+
+    def get_status(self, name):
+        return self.jobManager.get_status(name)
 
     def get_devices(self):
         return self.devices

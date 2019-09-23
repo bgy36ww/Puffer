@@ -34,15 +34,26 @@ def execute_url():
     app_name = request.form['app']
     port = request.form['ports']
     if device:
-        if test == 'test':
-            controller.run_task(device, port, app_name, content)
+        if test == 'hard cycle test':
+            controller.run_task(device, port, app_name, content, True)
+        elif test == 'soft cycle test':
+            controller.run_task(device, port, app_name, content, False)
         else:
-            controller.run_url(app_name, content)
+            controller.run_url(device, app_name, content)
     print(content)
     print(device)
     return redirect('/')
 # to do get json
 
+@app.route('/process', methods=['post'])
+def get_process():
+    print("post called")
+    print(request.form['name'])
+    print(request.form.keys)
+    global controller
+    name = request.form['name']
+    summary = str(controller.get_status(name))
+    return summary
 
 @app.route('/run/kill', methods=['post'])
 def kill_process():
