@@ -35,9 +35,11 @@ def execute_url():
     port = request.form['ports']
     if device:
         if test == 'hard cycle test':
-            controller.run_task(device, port, app_name, content, True)
+            controller.run_cookie_task(device, port, app_name, content, True)
         elif test == 'soft cycle test':
-            controller.run_task(device, port, app_name, content, False)
+            controller.run_cookie_task(device, port, app_name, content, False)
+        elif test == 'Wake On Lan test':
+            controller.run_wol_task(device, port, app_name, content, False)
         else:
             controller.run_url(device, app_name, content)
     print(content)
@@ -66,7 +68,7 @@ def kill_process():
 
 def execute_task(device, port, app, content):
     global controller
-    controller.run_task(device, port, app, content)
+    controller.run_cookie_task(device, port, app, content)
 
 
 @app.route('/tasks', methods=['get'])

@@ -1,4 +1,5 @@
 from Process import JobManager
+from Job import CookieJob, WolJob
 import dlipower
 
 
@@ -22,9 +23,17 @@ class MainController:
     def run_url(self, name, url, content):
         self.device_map[name].Launch(url, content)
 
-    def run_task(self, name, port, app, task, power = True):
+    def run_cookie_task(self, name, port, app, task, power = True):
         client = self.device_map[name]
-        self.jobManager.add(name, client, port, app, task, power)
+        job = CookieJob(name, client, self._switch, port, 86400,
+                  app, task, self.jobManager, power)
+        self.jobManager.add(job, name)
+
+    def run_wol_task(self, name, port, app, task, power = True):
+        client = self.device_map[name]
+        job = WolJob(name, client, self._switch, port, 86400,
+                        app, task, self.jobManager, power)
+        self.jobManager.add(job, name)
 
     def query_devices(self):
         return self.device_map
