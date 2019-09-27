@@ -44,7 +44,7 @@ class JobBase(Process):
       power=True):
     super(JobBase, self).__init__()
     self._name = name
-    self._manager = manager
+    self._manager = manager.manager
     self.client = client
     self.switch = switch
     self.port = port
