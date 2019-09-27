@@ -40,8 +40,8 @@ class JobManager:
 
 
 class JobBase(Process):
-  def __init__(self, name, client, switch, port, duration, app,
-      task, manager, power=True):
+  def __init__(self, name, client, switch, port, duration, app, task, manager,
+      power=True):
     super(JobBase, self).__init__()
     self._name = name
     self._manager = manager
