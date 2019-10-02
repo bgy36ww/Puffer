@@ -6,7 +6,7 @@ from Process import JobBase
 class CookieJob(JobBase):
   def __init__(self, name, client, switch, port, duration, app,
       task, manager, power=True):
-    super(CookieJob, self).__init__(JobBase, name, client, switch,
+    super(CookieJob, self).__init__(name, client, switch,
                                   port, duration, app, task, manager, power)
 
   def get_summary(self):
