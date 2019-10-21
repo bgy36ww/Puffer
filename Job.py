@@ -37,6 +37,7 @@ class CookieJob(JobBase):
         time.sleep(100)
         self.client.Wake()
         time.sleep(100)
+        self.client.Wake()
         self.check_paused()
         res = self.client.Launch(self._app, self._task)
         res.raise_for_status()
