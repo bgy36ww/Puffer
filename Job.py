@@ -8,6 +8,7 @@ class CookieJob(JobBase):
       task, manager, power=True):
     super(CookieJob, self).__init__(name, client, switch,
                                   port, duration, app, task, manager, power)
+    self.last_error = ''
 
   def get_summary(self):
     summary = '\n Status: ' + self._status + '\n Loop count: ' + \
@@ -17,6 +18,7 @@ class CookieJob(JobBase):
       fromtimestamp(self._start).strftime('%Y-%m-%d %H:%M:%S')
     summary = summary + '\n Duration: ' + str(datetime.timedelta(
         seconds=time.time() - self._start))
+    summary = summary + '\n Last Error: ' + str(self.last_error)
     self._manager[self._name] = summary
     return summary
 
@@ -26,6 +28,7 @@ class CookieJob(JobBase):
     except Exception as e:
       print('error closing app')
       print(e)
+      self.last_error = e
     self._status = 'running'
     while self._operating and time.time() - self._start < self._duration:
       try:
@@ -43,6 +46,7 @@ class CookieJob(JobBase):
         res.raise_for_status()
       except Exception as e:
         self._error_count += 1
+        self.last_error = e
         print(e)
 
       try:
@@ -53,6 +57,7 @@ class CookieJob(JobBase):
       except Exception as e:
         self.error_count += 1
         print(e)
+        self.last_error = e
     self._status = 'finished'
 
 
